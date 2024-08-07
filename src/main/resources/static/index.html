@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .form-section {
+            margin-bottom: 20px;
+        }
+
+        .form-section h2 {
+            margin-top: 0;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select,
+        .form-group button {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .form-group input[type="date"] {
+            max-width: 200px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .form-group textarea {
+            height: 80px;
+        }
+
+        .message {
+            margin-top: 10px;
+            padding: 10px;
+            color: #fff;
+            border-radius: 4px;
+        }
+
+        .message.success {
+            background-color: #28a745;
+        }
+
+        .message.error {
+            background-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Task Manager</h1>
+    <section class="form-section">
+    <form id="searchForm">
+        <div class="form-group">
+            <label for="searchTitle">Search Tasks by Title:</label>
+            <input type="text" id="searchTitle" name="searchTitle" placeholder="Enter title to search">
+        </div>
+        <div class="form-group">
+            <button type="button" id="searchTasks">Search</button>
+        </div>
+    </form>
+    </section>
+
+    <!-- Create Task Form -->
+    <section class="form-section">
+        <h2>Create Task</h2>
+        <form id="createTaskForm">
+            <div class="form-group">
+                <label for="title">Title:</label>
+                <input type="text" id="title" name="title" required>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="date">Date:</label>
+                <input type="date" id="date" name="date" required>
+            </div>
+
+            <div class="form-group">
+                <label for="status">Status:</label>
+                <select id="status" name="status" required>
+                    <option value="true">Completed</option>
+                    <option value="false">Incomplete</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <button type="submit">Create Task</button>
+            </div>
+            <div id="formMessage" class="message"></div>
+        </form>
+    </section>
+
+    <!-- Filter Form -->
+    <section class="form-section">
+        <h2>Filter Tasks</h2>
+        <form id="filterForm">
+            <div class="form-group">
+                <label for="startDate">Select Date Range:</label>
+                <input type="date" id="startDate" name="startDate">
+            </div>
+            <div class="form-group">
+                <label for="endDate">Select Date Range:</label>
+                <input type="date" id="endDate" name="endDate">
+            </div>
+
+            <div class="form-group">
+                <button type="button" id="filterByDateRange">Filter by Date Range</button>
+            </div>
+        </form>
+
+        <div class="form-group">
+            <button type="button" id="getTasksForToday">Filter Today</button>
+            <button type="button" id="getTasksForThisWeek">Filter This Week</button>
+            <button type="button" id="getIncompleteTasks">Filter Incomplete</button>
+            <button type="button" id="sortByDate">Sort by Date</button>
+        </div>
+    </section>
+
+    <!-- Tasks Table -->
+    <section class="form-section">
+        <h2>Tasks</h2>
+        <table id="taskTable">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Date</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- Task rows will be inserted here by JavaScript -->
+            </tbody>
+        </table>
+    </section>
+</div>
+
+<script>
+    const apiUrl = '/api/tasks';
+    function searchTasks(title) {
+        fetch(`${apiUrl}/search?title=${encodeURIComponent(title)}`)
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.querySelector('#taskTable tbody');
+                tableBody.innerHTML = '';
+                data.forEach(task => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                            <td>${task.id}</td>
+                            <td><a href="#" class="task-link" data-id="${task.id}">${task.title}</a></td>
+                            <td>${task.description}</td>
+                            <td>${new Date(task.date).toLocaleDateString()}</td>
+                            <td>${task.status ? 'Completed' : 'Incomplete'}</td>
+                        `;
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(error => console.error('Error searching tasks:', error));
+    }
+    // Function to fetch tasks from the backend and update the table
+    function fetchTasks(url) {
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.querySelector('#taskTable tbody');
+                tableBody.innerHTML = ''; // Clear existing rows
+                data.forEach(task => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                            <td>${task.id}</td>
+                            <td><a href="#" class="task-link" data-id="${task.id}">${task.title}</a></td>
+                            <td>${task.description}</td>
+                            <td>${new Date(task.date).toLocaleDateString()}</td>
+                            <td>${task.status ? 'Completed' : 'Incomplete'}</td>
+                        `;
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(error => console.error('Error fetching tasks:', error));
+    }
+
+    // Event listener for Create Task form
+    document.getElementById('createTaskForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+        const title = document.getElementById('title').value;
+        const description = document.getElementById('description').value;
+        const date = document.getElementById('date').value;
+        const status = document.getElementById('status').value === 'true';
+
+        fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({title, description, date, status})
+        })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('formMessage').textContent = 'Task created successfully!';
+                document.getElementById('formMessage').classList.add('success');
+                fetchTasks(apiUrl); // Refresh the tasks table
+            })
+            .catch(error => {
+                document.getElementById('formMessage').textContent = 'Error creating task.';
+                document.getElementById('formMessage').classList.add('error');
+                console.error('Error creating task:', error);
+            });
+    });
+
+    // Event listeners for buttons
+    document.getElementById('filterByDateRange').addEventListener('click', function () {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        if (startDate && endDate) {
+            fetchTasks(`${apiUrl}/range?startDate=${startDate}&endDate=${endDate}`);
+        } else {
+            alert('Please select both start and end dates.');
+        }
+    });
+    document.getElementById('searchTasks').addEventListener('click', function() {
+        const title = document.getElementById('searchTitle').value;
+        searchTasks(title);
+    });
+    document.getElementById('getTasksForToday').addEventListener('click', function () {
+        fetchTasks(`${apiUrl}/today`);
+    });
+
+    document.getElementById('getTasksForThisWeek').addEventListener('click', function () {
+        fetchTasks(`${apiUrl}/week`);
+    });
+
+    document.getElementById('getIncompleteTasks').addEventListener('click', function () {
+        fetchTasks(`${apiUrl}/incomplete`);
+    });
+
+    document.getElementById('sortByDate').addEventListener('click', function () {
+        fetchTasks(`${apiUrl}/sorted`);
+    });
+
+    // Load all tasks on page load
+    fetchTasks(apiUrl);
+</script>
+</body>
+</html>
