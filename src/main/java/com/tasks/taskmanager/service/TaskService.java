@@ -3,6 +3,7 @@ package com.tasks.taskmanager.service;
 import com.tasks.taskmanager.dto.TaskDto;
 import com.tasks.taskmanager.entity.Task;
 import com.tasks.taskmanager.repository.TaskRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,10 +12,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class TaskService {
+    private final TaskRepository taskRepository;
 
-    @Autowired
-    private TaskRepository taskRepository;
+    public TaskService(TaskRepository taskRepository) {
+        this.taskRepository = taskRepository;
+    }
 
     public List<TaskDto> searchTasksByTitle(String title) {
         List<Task> tasks = taskRepository.findByTitleContaining(title);

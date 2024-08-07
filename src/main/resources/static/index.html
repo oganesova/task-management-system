@@ -112,15 +112,15 @@
 <div class="container">
     <h1>Task Manager</h1>
     <section class="form-section">
-    <form id="searchForm">
-        <div class="form-group">
-            <label for="searchTitle">Search Tasks by Title:</label>
-            <input type="text" id="searchTitle" name="searchTitle" placeholder="Enter title to search">
-        </div>
-        <div class="form-group">
-            <button type="button" id="searchTasks">Search</button>
-        </div>
-    </form>
+        <form id="searchForm">
+            <div class="form-group">
+                <label for="searchTitle">Search Tasks by Title:</label>
+                <input type="text" id="searchTitle" name="searchTitle" placeholder="Enter title to search">
+            </div>
+            <div class="form-group">
+                <button type="button" id="searchTasks">Search</button>
+            </div>
+        </form>
     </section>
 
     <!-- Create Task Form -->
@@ -143,12 +143,13 @@
             </div>
 
             <div class="form-group">
-                <label for="status">Status:</label>
-                <select id="status" name="status" required>
+                <label for="completed">Status:</label>
+                <select id="completed" name="completed" required>
                     <option value="true">Completed</option>
                     <option value="false">Incomplete</option>
                 </select>
             </div>
+
 
             <div class="form-group">
                 <button type="submit">Create Task</button>
@@ -218,7 +219,7 @@
                             <td><a href="#" class="task-link" data-id="${task.id}">${task.title}</a></td>
                             <td>${task.description}</td>
                             <td>${new Date(task.date).toLocaleDateString()}</td>
-                            <td>${task.status ? 'Completed' : 'Incomplete'}</td>
+                            <td>${task.completed ? 'Completed' : 'Incomplete'}</td>
                         `;
                     tableBody.appendChild(row);
                 });
@@ -239,7 +240,7 @@
                             <td><a href="#" class="task-link" data-id="${task.id}">${task.title}</a></td>
                             <td>${task.description}</td>
                             <td>${new Date(task.date).toLocaleDateString()}</td>
-                            <td>${task.status ? 'Completed' : 'Incomplete'}</td>
+                            <td>${task.completed ? 'Completed' : 'Incomplete'}</td>
                         `;
                     tableBody.appendChild(row);
                 });
@@ -253,14 +254,14 @@
         const title = document.getElementById('title').value;
         const description = document.getElementById('description').value;
         const date = document.getElementById('date').value;
-        const status = document.getElementById('status').value === 'true';
+        const completed = document.getElementById('completed').value === 'true';
 
         fetch(apiUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({title, description, date, status})
+            body: JSON.stringify({title, description, date, completed})
         })
             .then(response => response.json())
             .then(data => {
