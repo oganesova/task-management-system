@@ -1,4 +1,6 @@
 # Task Management System
+![image](https://github.com/user-attachments/assets/2821d065-b0a6-45d5-a6b1-1ec8cbeab18d)
+
 
 ## Описание проекта
 
